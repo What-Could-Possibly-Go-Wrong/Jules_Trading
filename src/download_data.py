@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import argparse
 import time
-from datetime import datetime
+from datetime import datetime, date
 
 def read_tickers(filename):
     """Reads tickers from a file."""
@@ -17,10 +17,16 @@ def download_data(ticker, start_date="2000-01-01", end_date=None, directory="Kur
 
     filepath = os.path.join(directory, f"{ticker}.csv")
 
+    today = date.today()
+
     if os.path.exists(filepath):
         existing_data = pd.read_csv(filepath, index_col='Date')
-        existing_data.index = pd.to_datetime(existing_data.index, format='%Y%m%d')
+        existing_data.index = pd.to_datetime(existing_data.index, format='%Y%m%d').date
         last_date = existing_data.index.max()
+
+        if last_date >= today - pd.Timedelta(days=1):
+            print(f"Data for {ticker} is already up to date.")
+            return True
 
         start_date_dt = last_date + pd.Timedelta(days=1)
         start_date_str = start_date_dt.strftime('%Y-%m-%d')
@@ -43,10 +49,7 @@ def download_data(ticker, start_date="2000-01-01", end_date=None, directory="Kur
             if not data.empty:
                 data.index.name = 'Date'
                 data.index = data.index.strftime('%Y%m%d')
-                # Manually write header
-                with open(filepath, 'w') as f:
-                    f.write("Date,Open,High,Low,Close,Volume\n")
-                data.to_csv(filepath, mode='a', header=False)
+                data.to_csv(filepath)
                 print(f"Saved data for {ticker}")
             else:
                 print(f"No data found for {ticker}")
