@@ -27,9 +27,9 @@ def download_data(ticker, start_date="2000-01-01", end_date=None, directory="Kur
     today = date.today()
 
     if os.path.exists(filepath):
-        existing_data = pd.read_csv(filepath, index_col='Date')
-        existing_data.index = pd.to_datetime(existing_data.index, format='%Y%m%d').date
-        last_date = existing_data.index.max()
+        existing_data = pd.read_csv(filepath)
+        existing_data['Date'] = pd.to_datetime(existing_data['Date'], format='%Y%m%d').dt.date
+        last_date = existing_data['Date'].max()
 
         if last_date >= today - pd.Timedelta(days=1):
             print(f"Data for {ticker} is already up to date.")
@@ -43,8 +43,9 @@ def download_data(ticker, start_date="2000-01-01", end_date=None, directory="Kur
         try:
             new_data = yf.download(ticker, start=start_date_str, end=end_date, progress=False, auto_adjust=True)
             if not new_data.empty:
-                new_data.index = new_data.index.strftime('%Y%m%d')
-                new_data.to_csv(filepath, mode='a', header=False)
+                new_data.reset_index(inplace=True)
+                new_data['Date'] = new_data['Date'].dt.strftime('%Y%m%d')
+                new_data.to_csv(filepath, mode='a', header=False, index=False)
                 print(f"Updated data for {ticker}")
         except Exception as e:
             print(f"Could not update data for {ticker}: {e}")
@@ -54,9 +55,9 @@ def download_data(ticker, start_date="2000-01-01", end_date=None, directory="Kur
         try:
             data = yf.download(ticker, start=start_date, end=end_date, progress=False, auto_adjust=True)
             if not data.empty:
-                data.index.name = 'Date'
-                data.index = data.index.strftime('%Y%m%d')
-                data.to_csv(filepath)
+                data.reset_index(inplace=True)
+                data['Date'] = data['Date'].dt.strftime('%Y%m%d')
+                data.to_csv(filepath, index=False)
                 print(f"Saved data for {ticker}")
             else:
                 print(f"No data found for {ticker}")

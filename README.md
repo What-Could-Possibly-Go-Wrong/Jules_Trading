@@ -30,13 +30,9 @@ This project is a platform for testing various trading strategies using Python. 
     ```bash
     pip install -r requirements.txt
     ```
-2.  Run the scripts in the following order:
+2.  Run the entire pipeline:
     ```bash
-    python src/download_tickers.py
-    python src/download_data.py
-    python src/normalize_data.py
-    python src/calculate_indicators.py
-    python src/trading_strategy.py
+    python main.py
     ```
 3.  To run the tests:
     ```bash

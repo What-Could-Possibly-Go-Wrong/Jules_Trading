@@ -62,12 +62,28 @@ def run_gld_20_100_strategy(ticker, start_capital=10000, kurse_dir="Kurse", indi
         return
 
     # Load data
-    prices_df = pd.read_csv(kurse_filepath, index_col='Date', parse_dates=True)
-    indicators_df = pd.read_csv(indikatoren_filepath, index_col='Date', parse_dates=True)
+    try:
+        prices_df = pd.read_csv(kurse_filepath)
+        prices_df['Date'] = pd.to_datetime(prices_df['Date'], format='%Y%m%d')
+        prices_df.set_index('Date', inplace=True)
+        for col in ['Open', 'High', 'Low', 'Close', 'Volume']:
+            prices_df[col] = pd.to_numeric(prices_df[col], errors='coerce')
+        prices_df.dropna(inplace=True)
+
+
+        indicators_df = pd.read_csv(indikatoren_filepath)
+        indicators_df['Date'] = pd.to_datetime(indicators_df['Date'], format='%Y%m%d')
+        indicators_df.set_index('Date', inplace=True)
+        for col in ['MA20', 'MA100']:
+            indicators_df[col] = pd.to_numeric(indicators_df[col], errors='coerce')
+        indicators_df.dropna(inplace=True)
+    except Exception as e:
+        print(f"Error processing data for {ticker}: {e}")
+        return
+
 
     # Combine dataframes
     df = pd.concat([prices_df, indicators_df], axis=1).dropna()
-    df.index = pd.to_datetime(df.index, format='%Y%m%d')
 
     # Initialize variables
     cash = start_capital

@@ -20,7 +20,10 @@ def calculate_moving_averages(directory="Normierte Kurse", output_directory="Ind
     for filename in os.listdir(dir_path):
         if filename.endswith(".csv"):
             filepath = os.path.join(dir_path, filename)
-            df = pd.read_csv(filepath, index_col='Date', parse_dates=True)
+            df = pd.read_csv(filepath)
+            df['Date'] = pd.to_datetime(df['Date'], format='%Y%m%d')
+            df.set_index('Date', inplace=True)
+            df['Normalized Close'] = pd.to_numeric(df['Normalized Close'])
 
             df['MA20'] = df['Normalized Close'].rolling(window=20).mean()
             df['MA100'] = df['Normalized Close'].rolling(window=100).mean()
