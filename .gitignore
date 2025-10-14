@@ -34,3 +34,10 @@ debug.txt
 Feedback.txt
 sp500_debug.html
 dax_debug.html
+test_data/
+test_tickers/
+test_kurse/
+test_normierte_kurse/
+test_indikatoren/
+test_trading/
+test_tickers.txt
