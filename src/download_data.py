@@ -5,17 +5,22 @@ import argparse
 import time
 from datetime import datetime, date
 
+# Get the absolute path of the project root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 def read_tickers(filename):
     """Reads tickers from a file."""
-    with open(filename, 'r') as f:
+    filepath = os.path.join(PROJECT_ROOT, filename)
+    with open(filepath, 'r') as f:
         return [line.strip() for line in f if line.strip()]
 
 def download_data(ticker, start_date="2000-01-01", end_date=None, directory="Kurse"):
     """Downloads historical data for a single ticker and saves it as a CSV."""
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    dir_path = os.path.join(PROJECT_ROOT, directory)
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
 
-    filepath = os.path.join(directory, f"{ticker}.csv")
+    filepath = os.path.join(dir_path, f"{ticker}.csv")
 
     today = date.today()
 
@@ -77,12 +82,13 @@ def main():
     failed_tickers = []
 
     end_date = datetime.now().strftime('%Y-%m-%d')
+    debug_filepath = os.path.join(PROJECT_ROOT, "debug.txt")
 
     for ticker in all_tickers:
         if not download_data(ticker, end_date=end_date):
             failed_tickers.append(ticker)
             if args.debug:
-                with open("debug.txt", "a") as f:
+                with open(debug_filepath, "a") as f:
                     f.write(f"Failed to download or update data for {ticker}\n")
         time.sleep(1)
 

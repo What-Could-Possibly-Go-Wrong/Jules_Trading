@@ -4,6 +4,9 @@ import numpy as np
 import argparse
 from scipy.stats import gmean
 
+# Get the absolute path of the project root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 def calculate_kpis(df, trade_log, start_capital):
     """
     Calculates and returns a dictionary of Key Performance Indicators (KPIs).
@@ -42,11 +45,12 @@ def run_gld_20_100_strategy(ticker, start_capital=10000, kurse_dir="Kurse", indi
     """
     Runs the GLD 20-100 trading strategy for a single ticker.
     """
-    if not os.path.exists(trading_dir):
-        os.makedirs(trading_dir)
+    trading_dir_path = os.path.join(PROJECT_ROOT, trading_dir)
+    if not os.path.exists(trading_dir_path):
+        os.makedirs(trading_dir_path)
 
-    kurse_filepath = os.path.join(kurse_dir, f"{ticker}.csv")
-    indikatoren_filepath = os.path.join(indikatoren_dir, f"{ticker}.csv")
+    kurse_filepath = os.path.join(PROJECT_ROOT, kurse_dir, f"{ticker}.csv")
+    indikatoren_filepath = os.path.join(PROJECT_ROOT, indikatoren_dir, f"{ticker}.csv")
 
     if not os.path.exists(kurse_filepath) or not os.path.exists(indikatoren_filepath):
         print(f"Skipping {ticker}: Missing data or indicator file.")
@@ -92,7 +96,7 @@ def run_gld_20_100_strategy(ticker, start_capital=10000, kurse_dir="Kurse", indi
         df.loc[df.index[i], 'portfolio_value'] = cash + (shares * df['Close'].iloc[i])
 
     # Save the trade log
-    log_filepath = os.path.join(trading_dir, f"{ticker}_tradelog.txt")
+    log_filepath = os.path.join(trading_dir_path, f"{ticker}_tradelog.txt")
     with open(log_filepath, 'w') as f:
         for entry in trade_log:
             f.write(f"{entry}\n")
@@ -104,7 +108,7 @@ def run_gld_20_100_strategy(ticker, start_capital=10000, kurse_dir="Kurse", indi
         print(f"{key}: {value}")
 
     # Save KPIs to a file
-    kpi_filepath = os.path.join(trading_dir, f"{ticker}_kpis.txt")
+    kpi_filepath = os.path.join(trading_dir_path, f"{ticker}_kpis.txt")
     with open(kpi_filepath, 'w') as f:
         for key, value in kpis.items():
             f.write(f"{key}: {value}\n")
@@ -119,8 +123,10 @@ def main():
         print("Debug mode enabled.")
 
     tickers_to_trade = []
-    for ticker_file in ["Ticker/sp500.txt", "Ticker/dax.txt"]:
-        with open(ticker_file, 'r') as f:
+    ticker_dir = os.path.join(PROJECT_ROOT, "Ticker")
+    for ticker_file in ["sp500.txt", "dax.txt"]:
+        filepath = os.path.join(ticker_dir, ticker_file)
+        with open(filepath, 'r') as f:
             tickers_to_trade.extend([line.strip() for line in f if line.strip()][:5])
 
     for ticker in tickers_to_trade:

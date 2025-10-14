@@ -4,6 +4,9 @@ import os
 import argparse
 import traceback
 
+# Get the absolute path of the project root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 def get_sp500_tickers(debug=False):
     """
     Scrapes the S&P 500 ticker symbols from Wikipedia.
@@ -16,7 +19,7 @@ def get_sp500_tickers(debug=False):
     html_content = response.text
 
     if debug:
-        with open("sp500_debug.html", "w", encoding="utf-8") as f:
+        with open(os.path.join(PROJECT_ROOT, "sp500_debug.html"), "w", encoding="utf-8") as f:
             f.write(html_content)
 
     soup = BeautifulSoup(html_content, 'html.parser')
@@ -50,7 +53,7 @@ def get_dax_tickers(debug=False):
     html_content = response.text
 
     if debug:
-        with open("dax_debug.html", "w", encoding="utf-8") as f:
+        with open(os.path.join(PROJECT_ROOT, "dax_debug.html"), "w", encoding="utf-8") as f:
             f.write(html_content)
 
     soup = BeautifulSoup(html_content, 'html.parser')
@@ -72,10 +75,11 @@ def save_tickers(tickers, filename, directory="Ticker"):
     """
     Saves a list of tickers to a file.
     """
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    dir_path = os.path.join(PROJECT_ROOT, directory)
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
 
-    filepath = os.path.join(directory, filename)
+    filepath = os.path.join(dir_path, filename)
     with open(filepath, 'w') as f:
         for ticker in tickers:
             f.write(f"{ticker}\n")
@@ -86,8 +90,10 @@ def main():
     parser.add_argument('-d', '--debug', action='store_true', help='Enable debug logging and save HTML content.')
     args = parser.parse_args()
 
-    if os.path.exists("debug.txt"):
-        os.remove("debug.txt")
+    debug_filepath = os.path.join(PROJECT_ROOT, "debug.txt")
+
+    if os.path.exists(debug_filepath):
+        os.remove(debug_filepath)
 
     if args.debug:
         print("Debug mode enabled.")
@@ -100,7 +106,7 @@ def main():
     except Exception as e:
         print(f"Error downloading S&P 500 tickers: {e}")
         if args.debug:
-            with open("debug.txt", "a") as f:
+            with open(debug_filepath, "a") as f:
                 f.write(f"Error in get_sp500_tickers: {e}\n")
                 f.write(traceback.format_exc())
 
@@ -112,7 +118,7 @@ def main():
     except Exception as e:
         print(f"Error downloading DAX tickers: {e}")
         if args.debug:
-            with open("debug.txt", "a") as f:
+            with open(debug_filepath, "a") as f:
                 f.write(f"Error in get_dax_tickers: {e}\n")
                 f.write(traceback.format_exc())
 
