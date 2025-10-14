@@ -4,8 +4,11 @@ import numpy as np
 import argparse
 from scipy.stats import gmean
 
-# Get the absolute path of the project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Get the absolute path of the project root by finding the 'src' directory
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(PROJECT_ROOT) == 'src':
+    PROJECT_ROOT = os.path.dirname(PROJECT_ROOT)
+
 
 def calculate_kpis(df, trade_log, start_capital):
     """
@@ -54,6 +57,8 @@ def run_gld_20_100_strategy(ticker, start_capital=10000, kurse_dir="Kurse", indi
 
     if not os.path.exists(kurse_filepath) or not os.path.exists(indikatoren_filepath):
         print(f"Skipping {ticker}: Missing data or indicator file.")
+        print(f"Looked for: {kurse_filepath}")
+        print(f"Looked for: {indikatoren_filepath}")
         return
 
     # Load data
@@ -126,6 +131,9 @@ def main():
     ticker_dir = os.path.join(PROJECT_ROOT, "Ticker")
     for ticker_file in ["sp500.txt", "dax.txt"]:
         filepath = os.path.join(ticker_dir, ticker_file)
+        if not os.path.exists(filepath):
+            print(f"Ticker file not found at {filepath}")
+            continue
         with open(filepath, 'r') as f:
             tickers_to_trade.extend([line.strip() for line in f if line.strip()][:5])
 

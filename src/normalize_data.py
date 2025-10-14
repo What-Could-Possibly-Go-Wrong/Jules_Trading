@@ -2,8 +2,10 @@ import os
 import pandas as pd
 import argparse
 
-# Get the absolute path of the project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Get the absolute path of the project root by finding the 'src' directory
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(PROJECT_ROOT) == 'src':
+    PROJECT_ROOT = os.path.dirname(PROJECT_ROOT)
 
 def normalize_data(directory="Kurse", output_directory="Normierte Kurse"):
     """

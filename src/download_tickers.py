@@ -4,8 +4,10 @@ import os
 import argparse
 import traceback
 
-# Get the absolute path of the project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Get the absolute path of the project root by finding the 'src' directory
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(PROJECT_ROOT) == 'src':
+    PROJECT_ROOT = os.path.dirname(PROJECT_ROOT)
 
 def get_sp500_tickers(debug=False):
     """
